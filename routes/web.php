@@ -15,6 +15,8 @@ Route::post('login', [LoginController::class, 'store']);
 Route::get('criar-usuario', [RegisterUserController::class, 'index'])->name('register');
 Route::post('criar-usuario', [RegisterUserController::class, 'store']);
 
+Route::match(['get', 'post'], '/logout', [LoginController::class, 'destroy'])->name('logout');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });

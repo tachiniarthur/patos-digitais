@@ -16,6 +16,7 @@ defineProps({
 const form = useForm({
     email: '',
     password: '',
+    remember: false,
 });
 
 const submit = () => {
@@ -63,6 +64,13 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
+            </div>
+
+            <div class="block mt-4">
+                <label class="flex items-center">
+                    <Checkbox name="remember" v-model:checked="form.remember" />
+                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                </label>
             </div>
 
             <div class="flex items-center justify-center mt-4">

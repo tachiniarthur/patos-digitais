@@ -1,5 +1,5 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AppLayout from '@/Layouts/Main/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
@@ -8,9 +8,8 @@ defineProps({
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Home"></Head>
+    <AppLayout>
+        <Head title="Página principal"></Head>
 
-        
-    </GuestLayout>
+    </AppLayout>
 </template>
