@@ -26,7 +26,8 @@ watch(
         } else {
             document.body.style.overflow = null;
         }
-    }
+    },
+    { flush: 'post' }
 );
 
 const close = () => {
@@ -42,27 +43,26 @@ const closeOnEscape = (e) => {
 };
 
 onMounted(() => document.addEventListener('keydown', closeOnEscape));
-
 onUnmounted(() => {
     document.removeEventListener('keydown', closeOnEscape);
     document.body.style.overflow = null;
 });
 
-const maxWidthClass = computed(() => {
-    return {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
-    }[props.maxWidth];
-});
+const maxWidthClasses = {
+    sm: 'sm:max-w-sm',
+    md: 'sm:max-w-md',
+    lg: 'sm:max-w-lg',
+    xl: 'sm:max-w-xl',
+    '2xl': 'sm:max-w-2xl',
+};
+
+const maxWidthClass = computed(() => maxWidthClasses[props.maxWidth]);
 </script>
 
 <template>
     <Teleport to="body">
-        <Transition leave-active-class="duration-200">
-            <div v-show="show" class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50" scroll-region>
+        <Transition name="modal-fade" leave-active-class="duration-200">
+            <div v-show="show" class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 bg-black/25" scroll-region>
                 <Transition
                     enter-active-class="ease-out duration-300"
                     enter-from-class="opacity-0"
@@ -86,13 +86,25 @@ const maxWidthClass = computed(() => {
                 >
                     <div
                         v-show="show"
-                        class="mb-6 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto"
+                        class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto"
                         :class="maxWidthClass"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-hidden="!show"
                     >
-                        <slot v-if="show" />
+                        <slot v-if="show"></slot>
                     </div>
                 </Transition>
             </div>
         </Transition>
     </Teleport>
 </template>
+
+<style scoped>
+.modal-fade-enter-active, .modal-fade-leave-active {
+    transition: opacity 0.6s ease;
+}
+.modal-fade-enter, .modal-fade-leave-to {
+    opacity: 0;
+}
+</style>

@@ -37,7 +37,12 @@ export default {
             'secondary-700': '#1a1c1f',
             'secondary-800': '#121314',
             'secondary-900': '#09090a',
-          },
+            'red': '#A31616',
+            'green': '#16A34A',
+            'blue': '#163DA3',
+            'black': '#000000',
+            'white': '#ffffff',
+        },
     },
 
     plugins: [forms],
