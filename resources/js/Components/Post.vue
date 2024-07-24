@@ -1,9 +1,13 @@
 <script setup>
 
-defineProps({
-    post: {
-        type: Object,
-        required: false,
+const props = defineProps({
+    content: {
+        type: String,
+        required: true,
+    },
+    userName: {
+        type: String,
+        required: true,
     },
 });
 
@@ -17,10 +21,10 @@ defineProps({
                 src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
                 alt="Imagem de perfil do usuário"
             >
-            <span class="text-base">John Doe</span>
+            <span class="text-base">{{ props.userName }}</span>
         </div>
         <span class="text-break">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque nesciunt accusamus ea sunt, ad reprehenderit! Nobis iusto nesciunt culpa et, exercitationem labore impedit iure nemo deserunt harum necessitatibus velit possimus.
+            {{ props.content }}
         </span>
         <div class="flex items-center justify-between w-20">
             <button class="hover:text-green hover:scale-150 duration-300">

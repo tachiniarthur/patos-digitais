@@ -1,10 +1,13 @@
 <script setup>
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Modal from '@/Components/Modal.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-defineProps({
+const props = defineProps({
     user: {
         type: Object,
         required: false,
@@ -13,10 +16,23 @@ defineProps({
 
 const showModal = ref(false);
 
-const user = ref({
+const user = computed(() => props.user || {
     name: 'John Doe',
     email: 'john.doe@gmail.com',
 });
+
+const form = useForm({
+    content: '',
+});
+
+const submit = () => {
+    form.post(route('post.store'), {
+        onFinish: () => {
+            form.content = '';
+            closeModal();
+        },
+    });
+};
 
 const openModal = () => {
     showModal.value = true;
@@ -25,7 +41,6 @@ const openModal = () => {
 const closeModal = () => {
     showModal.value = false;
 };
-
 </script>
 
 <template>
@@ -98,16 +113,37 @@ const closeModal = () => {
     <Modal
         :show="showModal"
         maxWidth="2xl"
+        @close="closeModal"
     >
         <template v-slot:default>
-            <div class="p-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-medium text-primary-600">Modal</h2>
-                    <button class="hover:scale-150 duration-300 flex items-center p-1" @click="closeModal">
-                        <i class='bx bx-x'></i>
-                    </button>
+            <form @submit.prevent="submit">
+                <div class="p-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-medium text-primary-600">Novo post</h2>
+                        <button class="hover:scale-150 duration-300 flex items-center p-1" @click="closeModal">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="content" value="Conteúdo" />
+
+                        <TextInput
+                            id="content"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.content"
+                            required
+                        />
+
+                        <InputError class="mt-2" :message="form.errors.content" />
+                    </div>
+                    <div class="flex items-center justify-center mt-4">
+                        <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                            Criar post
+                        </PrimaryButton>
+                    </div>
                 </div>
-            </div>
+            </form>
         </template>
     </Modal>
 </template>

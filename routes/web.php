@@ -24,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('/profile', [HomeController::class, 'profile'])->name('profile');
     
     Route::prefix('/post')->group(function () {
-        Route::post('/novo', [PostController::class, 'store']);
+        Route::get('/consultar/{cursor?}', [PostController::class, 'getPosts'])->name('post.getPosts');
+        Route::post('/novo', [PostController::class, 'store'])->name('post.store');
     });
 });
