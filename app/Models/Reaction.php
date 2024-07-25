@@ -13,7 +13,7 @@ class Reaction extends Model
     protected $fillable = [
         'post_id',
         'user_id',
-        'type',
+        'type', // criar coluna para comentário
     ];
 
     public function post()

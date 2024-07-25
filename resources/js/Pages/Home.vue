@@ -1,9 +1,16 @@
 <script setup>
 import AppLayout from '@/Layouts/Main/AppLayout.vue';
 import Post from '@/Components/Post.vue';
-import { router, usePage, Head, Link, useForm } from '@inertiajs/vue3';
+import { router, usePage, Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import SkeletonPosts from '@/Components/SkeletonPosts.vue';
+
+const props = defineProps({
+    user: {
+        type: Object,
+        required: true,
+    }
+});
 
 const posts = ref([]);
 const nextRouteCursor = ref(null);
@@ -21,7 +28,9 @@ const fetchPosts = async () => {
         posts.value = response.data.posts;
         nextRouteCursor.value = response.data.nextPageUrl;
         hasMore.value = response.data.hasMorePages;
-        isLoading.value = false;
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 1000);
     } catch (error) {
         console.error('Failed to fetch posts:', error);
     }
@@ -34,7 +43,9 @@ const loadMore = async () => {
         posts.value = [...posts.value, ...response.data.posts];
         nextRouteCursor.value = response.data.nextPageUrl;
         hasMore.value = response.data.hasMorePages;
-        isLoading.value = false;
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 1000);
     } catch (error) {
         console.error('Failed to load more posts:', error);
     }
@@ -42,7 +53,9 @@ const loadMore = async () => {
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout
+        :user="props.user"
+    >
         <Head title="Página principal" />
 
         <div class="flex flex-col gap-8">

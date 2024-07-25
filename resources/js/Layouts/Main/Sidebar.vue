@@ -16,11 +16,6 @@ const props = defineProps({
 
 const showModal = ref(false);
 
-const user = computed(() => props.user || {
-    name: 'John Doe',
-    email: 'john.doe@gmail.com',
-});
-
 const form = useForm({
     content: '',
 });
@@ -37,7 +32,6 @@ const submit = () => {
 const openModal = () => {
     showModal.value = true;
 };
-
 const closeModal = () => {
     showModal.value = false;
 };

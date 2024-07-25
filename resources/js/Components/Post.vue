@@ -1,4 +1,5 @@
 <script setup>
+// import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
     content: {
@@ -36,6 +37,9 @@ const props = defineProps({
             <button class="hover:text-blue hover:scale-150 duration-300">
                 <i class="bx bxs-chat font-medium"></i>
             </button>
+        </div>
+        <div class="flex items-center justify-start">
+            <Input type="text" placeholder="Comente algo..." class="w-96" />
         </div>
     </div>
 </template>
