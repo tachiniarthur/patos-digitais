@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Posts;
+use App\Models\Post;
 
 class PostService
 {
     public function __construct(
-        public Posts $post
+        public Post $post
     ) {
         
     }
@@ -18,7 +18,7 @@ class PostService
             ->join('users', 'users.id', '=', 'posts.user_id')
             ->select('posts.*', 'users.id as user_id', 'users.name as user_name', 'users.email as user_email')
             ->orderBy('posts.id', 'desc')
-            ->cursorPaginate(4, ['*'], 'cursor', ($cursor == 0 ? null : $cursor));
+            ->cursorPaginate(5, ['*'], 'cursor', ($cursor == 0 ? null : $cursor));
     }
 
     public function createPost($request)

@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostStoreRequest;
-use App\Models\Posts;
 use App\Services\PostService;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class PostController extends Controller
 {

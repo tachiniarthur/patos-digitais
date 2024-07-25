@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Posts;
 use App\Services\PostService;
 use Inertia\Inertia;
 
