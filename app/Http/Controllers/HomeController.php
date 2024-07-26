@@ -2,13 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use App\Services\PostService;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        public PostService $postService
+    ) {
+        
+    }
+    
     public function index()
     {
-        return Inertia::render('Home');
+        $user = auth()->user();
+
+        return Inertia::render('Home', [
+            'user' => $user,
+        ]);
     }
 }

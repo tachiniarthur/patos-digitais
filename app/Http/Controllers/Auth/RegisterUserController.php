@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RequestRegisterUser;
+use App\Http\Requests\RegisterUserRequest;
 use App\Services\UserService;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -23,7 +24,7 @@ class RegisterUserController extends Controller
         return Inertia::render('Auth/Register');
     }
 
-    public function store(RequestRegisterUser $request): Response
+    public function store(RegisterUserRequest $request): RedirectResponse
     {
         $user = $this->userService->createUser($request->validated());
 
@@ -31,6 +32,6 @@ class RegisterUserController extends Controller
 
         Auth::login($user);
 
-        return response()->noContent();
+        return redirect()->route('login');
     }
 }

@@ -16,6 +16,7 @@ defineProps({
 const form = useForm({
     email: '',
     password: '',
+    remember: false,
 });
 
 const submit = () => {
@@ -65,6 +66,13 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
+            <div class="block mt-4">
+                <label class="flex items-center">
+                    <Checkbox name="remember" v-model:checked="form.remember" />
+                    <span class="ms-2 text-sm text-primary-600">Remember me</span>
+                </label>
+            </div>
+
             <div class="flex items-center justify-center mt-4">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Entrar
@@ -73,7 +81,7 @@ const submit = () => {
             <div class="flex items-center justify-center mt-4">
                 <Link
                     :href="route('register')"
-                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-yellow-500"
+                    class="underline text-sm text-primary-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-yellow-500"
                 >
                     Criar novo usuário
                 </Link>
