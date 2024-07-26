@@ -20,7 +20,7 @@ const form = useForm({
     content: '',
 });
 
-const submit = () => {
+const newPost = () => {
     form.post(route('post.store'), {
         onFinish: () => {
             form.content = '';
@@ -110,7 +110,7 @@ const closeModal = () => {
         @close="closeModal"
     >
         <template v-slot:default>
-            <form @submit.prevent="submit">
+            <form @submit.prevent="newPost()">
                 <div class="p-6">
                     <div class="flex justify-between items-center">
                         <h2 class="text-2xl font-medium text-primary-600">Novo post</h2>

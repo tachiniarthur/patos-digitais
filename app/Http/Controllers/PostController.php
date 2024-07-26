@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostCommentStoreRequest;
 use App\Http\Requests\PostStoreRequest;
 use App\Services\PostService;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -35,5 +37,19 @@ class PostController extends Controller
         $this->postService->createPost($request->validated());
 
         return redirect()->route('home');
+    }
+
+    public function getComments(int $postId)
+    {
+        $comments = $this->postService->getComments($postId);
+
+        return (object) [
+            'comments' => $comments,
+        ];
+    }
+
+    public function comment(PostCommentStoreRequest $request): void
+    {
+        $this->postService->createComment($request->validated());
     }
 }
