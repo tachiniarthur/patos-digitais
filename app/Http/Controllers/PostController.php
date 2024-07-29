@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PostCommentStoreRequest;
+use App\Http\Requests\PostReactionStoreRequest;
 use App\Http\Requests\PostStoreRequest;
 use App\Services\PostService;
 use Illuminate\Http\Request;
@@ -51,5 +52,11 @@ class PostController extends Controller
     public function comment(PostCommentStoreRequest $request): void
     {
         $this->postService->createComment($request->validated());
+    }
+
+    public function reaction(PostReactionStoreRequest $request): void
+    {
+        dd($request->all());
+        // $this->postService->createReaction($request->all());
     }
 }

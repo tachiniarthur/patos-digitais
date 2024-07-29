@@ -25,6 +25,7 @@ const newPost = () => {
         onFinish: () => {
             form.content = '';
             closeModal();
+            emit('postCreated');
         },
     });
 };
@@ -35,6 +36,8 @@ const openModal = () => {
 const closeModal = () => {
     showModal.value = false;
 };
+
+const emit = defineEmits(['postCreated']);
 </script>
 
 <template>
@@ -119,7 +122,7 @@ const closeModal = () => {
                         </button>
                     </div>
                     <div class="mt-4">
-                        <InputLabel for="content" value="Conteúdo" />
+                        <InputLabel for="content" value="Em que você está pensando?" />
 
                         <TextInput
                             id="content"

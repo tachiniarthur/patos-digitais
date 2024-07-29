@@ -7,12 +7,19 @@ const props = defineProps({
         required: true,
     }
 });
+
+const emit = defineEmits(['postCreated']);
+
+const handlePostCreated = () => {
+    emit('postCreated');
+};
 </script>
 
 <template>
     <div class="flex min-h-screen">
         <Sidebar
             :user="props.user"
+            @postCreated="handlePostCreated"
         ></Sidebar>
     
         <div class="ml-64 flex-1 flex justify-center min-h-screen bg-secondary-100 py-12">

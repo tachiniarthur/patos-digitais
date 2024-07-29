@@ -26,7 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/post')->group(function () {
         Route::get('/consultar/{cursor?}', [PostController::class, 'getPosts'])->name('post.getPosts');
         Route::post('/novo', [PostController::class, 'store'])->name('post.store');
+
         Route::get('/comentários/{postId}', [PostController::class, 'getComments'])->name('post.getComments');
         Route::post('/comentar', [PostController::class, 'comment'])->name('post.comment');
+
+        Route::post('/reagir', [PostController::class, 'reaction'])->name('post.reaction');
     });
 });
