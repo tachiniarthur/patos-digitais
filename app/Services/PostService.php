@@ -16,6 +16,7 @@ class PostService
     {
         return $this->post
             ->with(['user:id,name,email'])
+            ->withCount('comments', 'likes', 'dislikes')
             ->orderBy('posts.id', 'desc')
             ->cursorPaginate(5, ['*'], 'cursor', ($cursor == 0 ? null : $cursor));
     }
@@ -40,5 +41,28 @@ class PostService
             'type' => 'comment',
             'comment' => $request['comment'],
         ]);
+    }
+
+    public function manipulationReaction($request): void
+    {
+        $reactions = $this->post->find($request['post_id'])->reaction()->get();
+
+        if ($reactions->isEmpty()) {
+            $this->post->find($request['post_id'])->reaction()->create([
+                'user_id' => auth()->user()->id,
+                'type' => $request['reaction'],
+            ]);
+        } else {
+            foreach ($reactions as $reaction) {
+                if ($reaction->user_id == auth()->user()->id && $reaction->type == $request['reaction']) {
+                    $reaction->delete();
+                } else {
+                    $this->post->find($request['post_id'])->reaction()->updateOrCreate([
+                        'user_id' => auth()->user()->id,
+                        'type' => $request['reaction'],
+                    ]);
+                }
+            }
+        }
     }
 }

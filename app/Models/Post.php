@@ -25,6 +25,11 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function reaction()
+    {
+        return $this->hasMany(Reaction::class);
+    }
+
     public function likes()
     {
         return $this->hasMany(Reaction::class)->where('type', 'like');

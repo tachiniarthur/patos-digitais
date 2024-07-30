@@ -56,7 +56,6 @@ class PostController extends Controller
 
     public function reaction(PostReactionStoreRequest $request): void
     {
-        dd($request->all());
-        // $this->postService->createReaction($request->all());
+        $this->postService->manipulationReaction($request->all());
     }
 }

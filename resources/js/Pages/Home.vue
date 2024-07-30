@@ -50,23 +50,29 @@ const loadMore = async () => {
         console.error('Erro ao carregar mais posts:', error);
     }
 };
-
-const handlePostCreated = () => {
-    fetchPosts();
-};
 </script>
 
 <template>
     <AppLayout
         :user="props.user"
-        @postCreated="handlePostCreated"
+        @postCreated="fetchPosts"
     >
         <Head title="Página principal" />
 
         <div class="flex flex-col gap-8" v-if="posts.length > 0">
             <SkeletonPosts v-if="isLoading" v-for="n in 5"></SkeletonPosts>
 
-            <Post v-if="!isLoading" v-for="post in posts" :key="post.id" :post-id="post.id" :content="post.content" :user-name="post.user.name" />
+            <Post
+                v-if="!isLoading"
+                v-for="post in posts"
+                :key="post.id"
+                :post-id="post.id"
+                :content="post.content"
+                :user-name="post.user.name"
+                :count-likes="post.likes_count"
+                :count-dislikes="post.dislikes_count"
+                :count-comments="post.comments_count"
+            />
 
             <button v-if="hasMore" @click="loadMore">Load More</button>
         </div>

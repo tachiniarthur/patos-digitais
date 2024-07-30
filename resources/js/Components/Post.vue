@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import SkeletonComments from '@/Components/SkeletonComments.vue';
@@ -8,6 +8,9 @@ import axios from 'axios';
 
 const comentario = ref('');
 const comentarios = ref([]);
+const likes = ref(0);
+const dislikes = ref(0);
+const comments = ref(0);
 const isLoading = ref(false);
 const isTextInputVisible = ref(false);
 
@@ -22,6 +25,18 @@ const props = defineProps({
     },
     userName: {
         type: String,
+        required: true,
+    },
+    countLikes: {
+        type: Number,
+        required: true,
+    },
+    countDislikes: {
+        type: Number,
+        required: true,
+    },
+    countComments: {
+        type: Number,
         required: true,
     },
 });
@@ -74,8 +89,13 @@ const newReaction = async (reaction) => {
             reaction: reaction,
         });
 
+        console.log(response)
         if (response.status == 200) {
-            fetchComments();
+            if (reaction == 'like') {
+                likes.value++;
+            } else {
+                dislike.value++;
+            }
         } else {
             console.error('Erro ao reagir na publicação:', response);
         }
@@ -93,6 +113,11 @@ const toggleTextInput = () => {
         fetchComments();
     }
 };
+
+onMounted(() => {
+    likes.value = props.countLikes;
+    dislikes.value = props.countDislikes;
+});
 </script>
 
 <template>
@@ -111,15 +136,15 @@ const toggleTextInput = () => {
         <div class="flex items-center justify-between w-20 gap-4">
             <button class="flex justify-center items-center hover:text-green hover:scale-150 duration-300" @click="newReaction('like')">
                 <i class="bx bxs-like font-medium"></i>
-                <span class="text-xs font-medium ps-1">43</span>
+                <span class="text-xs font-medium ps-1">{{ likes }}</span>
             </button>
-            <button class="flex justify-center items-center hover:text-red hover:scale-150 duration-300" @click="newReaction('deslike')">
+            <button class="flex justify-center items-center hover:text-red hover:scale-150 duration-300" @click="newReaction('dislike')">
                 <i class="bx bxs-dislike font-medium"></i>
-                <span class="text-xs font-medium ps-1">43</span>
+                <span class="text-xs font-medium ps-1">{{ dislikes }}</span>
             </button>
             <button class="flex justify-center items-center hover:text-blue hover:scale-150 duration-300" @click="toggleTextInput">
                 <i class="bx bxs-chat font-medium"></i>
-                <span class="text-xs font-medium ps-1">43</span>
+                <span class="text-xs font-medium ps-1">{{ props.countComments }}</span>
             </button>
         </div>
         <div v-if="isTextInputVisible" class="flex flex-col items-start transition ease-in-out duration-300">
