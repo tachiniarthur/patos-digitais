@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
+            $table->string('uuid')->unique();
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('user_id');
             $table->enum('type', ['like', 'dislike']);

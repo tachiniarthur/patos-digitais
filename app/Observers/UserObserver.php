@@ -10,7 +10,7 @@ class UserObserver
     /**
     * Handle the Product "created" event.
     *
-    * @param  \App\Models\User  $user
+    * @param  \App\Models\User $user
     * @return void
     */
     public function creating(User $user)
