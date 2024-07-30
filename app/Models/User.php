@@ -15,13 +15,21 @@ class User extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
+        'uuid',
         'name',
         'email',
         'password',
+        'biography',
+        'gender',
+        'date_of_birth',
+        'phone_number',
+        'address',
+        'city',
+        'state',
+        'country',
     ];
 
     protected $hidden = [
-        'uuid',
         'password',
         'remember_token',
     ];

@@ -6,7 +6,6 @@ use App\Http\Requests\PostCommentStoreRequest;
 use App\Http\Requests\PostReactionStoreRequest;
 use App\Http\Requests\PostStoreRequest;
 use App\Services\PostService;
-use Illuminate\Http\Request;
 
 class PostController extends Controller
 {

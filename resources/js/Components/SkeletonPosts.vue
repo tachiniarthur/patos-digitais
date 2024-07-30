@@ -14,10 +14,10 @@
             <div class="h-2.5 bg-secondary-100 rounded-full w-100 mb-1"></div>
             <div class="h-2.5 bg-secondary-100 rounded-full w-60"></div>
         </div>
-        <div class="flex items-center justify-between w-20 gap-2">
-            <div class="h-2.5 bg-secondary-100 rounded-full w-48 mb-4"></div>
-            <div class="h-2.5 bg-secondary-100 rounded-full w-48 mb-4"></div>
-            <div class="h-2.5 bg-secondary-100 rounded-full w-48 mb-4"></div>
+        <div class="flex items-center justify-between w-28 gap-4">
+            <div class="h-4 bg-secondary-100 rounded-full w-48"></div>
+            <div class="h-4 bg-secondary-100 rounded-full w-48"></div>
+            <div class="h-4 bg-secondary-100 rounded-full w-48"></div>
         </div>
         <span class="sr-only">Loading...</span>
     </div>

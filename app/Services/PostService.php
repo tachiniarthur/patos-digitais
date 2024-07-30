@@ -14,11 +14,19 @@ class PostService
 
     public function getPosts($cursor = null)
     {
+        $userId = auth()->user()->id;
+    
         return $this->post
             ->with(['user:id,name,email'])
             ->withCount('comments', 'likes', 'dislikes')
             ->orderBy('posts.id', 'desc')
-            ->cursorPaginate(5, ['*'], 'cursor', ($cursor == 0 ? null : $cursor));
+            ->cursorPaginate(5, ['*'], 'cursor', ($cursor == 0 ? null : $cursor))
+            ->tap(function ($posts) use ($userId) {
+                $posts->each(function ($post) use ($userId) {
+                    $post->user_liked = $post->likes()->where('user_id', $userId)->exists();
+                    $post->user_disliked = $post->dislikes()->where('user_id', $userId)->exists();
+                });
+            });
     }
 
     public function createPost($request)
