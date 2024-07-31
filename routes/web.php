@@ -22,7 +22,8 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'destroy'])->n
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pagina-principal', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/{userName}/perfil', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/atualizar-perfil', [ProfileController::class, 'update'])->name('profile.update');
     
     Route::prefix('/post')->group(function () {
         Route::get('/consultar/{cursor?}', [PostController::class, 'getPosts'])->name('post.getPosts');

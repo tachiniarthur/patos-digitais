@@ -50,7 +50,7 @@ const emit = defineEmits(['postCreated']);
         </Link>
 
         <Link
-            :href="route('profile')"
+            :href="route('profile', props.user.name)"
             class="flex flex-col items-center mt-6 rounded-lg hover:bg-secondary-400 hover:-translate-y-1 hover:scale-110 duration-300 py-2"
         >
             <img

@@ -42,6 +42,7 @@ export default {
             'blue': '#163DA3',
             'black': '#000000',
             'white': '#ffffff',
+            'transparent': 'transparent',
         },
     },
 
