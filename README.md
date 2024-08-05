@@ -21,7 +21,7 @@ Patos Digitais is a website developed for a social network, using Laravel, Vue 3
 
 ```bash
 git clone https://github.com/tachiniarthur/patos-digitais.git
-cd o-patusco
+cd patos-digitais
 ```
 
 2. **Install Backend Dependencies**
