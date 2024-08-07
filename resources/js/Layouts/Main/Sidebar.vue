@@ -76,7 +76,7 @@ const emit = defineEmits(['postCreated']);
                     <span class="mx-2 font-medium">Página inicial</span>
                 </Link>
                 <Link
-                    href="#"
+                    :href="route('search')"
                     class="flex items-center px-4 py-2 mt-3 text-primary-600 rounded-lg hover:bg-primary-200 hover:-translate-y-1 hover:scale-110 duration-300"
                 >
                     <i class="bx bx-search font-medium"></i>

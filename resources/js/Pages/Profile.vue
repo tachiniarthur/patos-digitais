@@ -14,6 +14,7 @@ const props = defineProps({
     }
 });
 
+const user = ref(props.user);
 const isLoading = ref(false);
 const nome = ref('');
 const email = ref('');
@@ -101,6 +102,12 @@ const updateProfile = async () => {
             state: estado.value,
             number: numero.value,
         });
+
+        if (response.status === 200) {
+            user.value = response.data.user;
+
+            router.visit(route('profile', nome.value));
+        }
         
         setTimeout(() => {
             isLoading.value = false;
@@ -113,7 +120,7 @@ const updateProfile = async () => {
 
 <template>
     <AppLayout
-        :user="props.user"
+        :user="user"
     >
         <Head title="Meu perfil" />
 
@@ -126,12 +133,12 @@ const updateProfile = async () => {
                 />
 
                 <TextInput
-                    class="border-none bg-transparent text-2xl font-bold mt-4 shadow-none align-middle text-center py-0"
+                    class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
                     v-model="nome"
                 ></TextInput>
                 
                 <TextInput
-                    class="text-xs border-none bg-transparent mt-2 shadow-none align-middle text-center py-0"
+                    class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
                     v-model="email"
                 ></TextInput>
 

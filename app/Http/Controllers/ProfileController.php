@@ -27,11 +27,13 @@ class ProfileController extends Controller
 
     public function update(UserProfileUpdateRequest $request)
     {
-        dd($request->all());
-        // $user = $this->userService->getUserByName($userName);
+        $user = $this->userService->getUserById($request['user_id']);
 
-        // $this->userService->updateUser($user, request()->all());
+        $this->userService->updateUser($user, $request->all());
 
-        // return redirect()->route('profile', $userName);
+        return (object) [
+            'message' => 'Perfil atualizado com sucesso!',
+            'user' => $user,
+        ];
     }
 }
