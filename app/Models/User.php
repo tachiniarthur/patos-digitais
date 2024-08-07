@@ -2,20 +2,16 @@
 
 namespace App\Models;
 
-use App\Observers\UserObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
-        'uuid',
         'name',
         'email',
         'password',
@@ -23,10 +19,12 @@ class User extends Authenticatable
         'gender',
         'date_of_birth',
         'phone_number',
-        'address',
+        'zip_code',
+        'number',
+        'street',
+        'neighborhood',
         'city',
         'state',
-        'country',
     ];
 
     protected $hidden = [

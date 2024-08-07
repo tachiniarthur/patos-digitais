@@ -18,13 +18,15 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('biography')->nullable();
-            $table->enum('gender', ['M', 'F', 'O'])->nullable();
+            $table->enum('gender', ['man', 'woman', 'others'])->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('phone_number')->nullable();
-            $table->string('address')->nullable();
+            $table->string('zip_code')->nullable();
+            $table->string('number')->nullable();
+            $table->string('street')->nullable();
+            $table->string('neighborhood')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->string('country')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

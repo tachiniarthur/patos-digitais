@@ -2,7 +2,7 @@
     <textarea
         :value="modelValue"
         :placeholder="placeholder"
-        class="block w-full text-sm text-gray-900 rounded-lg border bg-white border-primary-300 focus:ring-primary-500 focus:border-primary-500"
+        class="block w-full text-sm text-gray-900 rounded-lg border bg-white border-none focus:ring-primary-500 focus:border-primary-500"
         ref="textarea"
         @input="updateValue"
     ></textarea>
