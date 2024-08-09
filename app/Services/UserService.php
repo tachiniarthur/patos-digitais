@@ -7,7 +7,7 @@ use App\Models\User;
 class UserService
 {
     public function __construct(
-        public User $user
+        private User $user
     ) {
         
     }
@@ -20,10 +20,11 @@ class UserService
     public function getUserByName(string $name)
     {
         return $this->user
-            ->where('name', $name)
+            ->where('username', $name)
             ->select(
                 'id',
                 'name',
+                'username',
                 'email',
                 'biography',
                 'gender',
@@ -41,6 +42,7 @@ class UserService
     public function createUser($request)
     {
         return $this->user->create([
+            'username' => $request['username'],
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => bcrypt($request['password']),
@@ -50,6 +52,7 @@ class UserService
     public function updateUser($user, $request)
     {
         $user->update([
+            'username' => $request['username'],
             'name' => $request['name'],
             'email' => $request['email'],
             'biography' => $request['biography'],
@@ -65,17 +68,5 @@ class UserService
         ]);
 
         return $user;
-    }
-
-    public function findUserBySearch($request)
-    {
-        return $this->user
-            ->where('name', 'like', '%' . $request['search'] . '%')
-            ->where('id', '!=', auth()->id())
-            ->select(
-                'id',
-                'name',
-                'email',
-            )->get();
     }
 }

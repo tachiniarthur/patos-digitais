@@ -23,11 +23,12 @@ Route::match(['get', 'post'], '/logout', [LoginController::class, 'destroy'])->n
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pagina-principal', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/{userName}/perfil', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/{userName}/meu-perfil', [ProfileController::class, 'index'])->name('profile');
     Route::post('/atualizar-perfil', [ProfileController::class, 'update'])->name('profile.update');
     
     Route::prefix('/post')->group(function () {
         Route::get('/consultar/{cursor?}', [PostController::class, 'getPosts'])->name('post.getPosts');
+        Route::get('{userName}/consultar/{cursor?}', [PostController::class, 'getPostsByUser'])->name('post.getPostsByUser');
         Route::post('/novo', [PostController::class, 'store'])->name('post.store');
 
         Route::get('/comentários/{postId}', [PostController::class, 'getComments'])->name('post.getComments');
@@ -39,5 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('/pesquisar')->group(function () {
         Route::get('/', [SearchController::class, 'index'])->name('search');
         Route::post('/', [SearchController::class, 'search'])->name('search.post');
+        Route::post('/seguir', [SearchController::class, 'follow'])->name('search.follow');
     });
 });

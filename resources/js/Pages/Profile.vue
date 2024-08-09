@@ -6,8 +6,14 @@ import Textarea from '@/Components/Textarea.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Select from '@/Components/Select.vue';
+import SkeletonPosts from '@/Components/SkeletonPosts.vue';
+import Post from '@/Components/Post.vue';
 
 const props = defineProps({
+    authUser: {
+        type: Object,
+        required: true,
+    },
     user: {
         type: Object,
         required: true,
@@ -15,8 +21,12 @@ const props = defineProps({
 });
 
 const user = ref(props.user);
+const userAuth = ref(props.authUser);
+const canEdit = userAuth.value.id == user.value.id;
 const isLoading = ref(false);
+const isLoadingPosts = ref(false);
 const nome = ref('');
+const username = ref('');
 const email = ref('');
 const biografia = ref('');
 const selectedOption = ref('');
@@ -33,6 +43,9 @@ const logradouro = ref('');
 const bairro = ref('');
 const numero = ref('');
 const estado = ref('');
+const posts = ref([]);
+const nextRouteCursor = ref(null);
+const hasMore = ref(false);
 
 const formatCep = (value) => {
     value = value.replace(/\D/g, '');
@@ -46,19 +59,22 @@ const handleNull = (value) => {
     return value == null ? '' : value;
 };
 
-onMounted(() => {
+onMounted(async () => {
     nome.value = handleNull(props.user.name);
+    username.value = handleNull(props.user.username);
     email.value = handleNull(props.user.email);
     biografia.value = handleNull(props.user.biography);
     selectedOption.value = handleNull(props.user.gender);
     dataNascimento.value = handleNull(props.user.birth_date);
-    telefone.value = handleNull(props.user.phone);
+    telefone.value = handleNull(props.user.phone_number);
     cep.value = handleNull(props.user.zip_code);
     logradouro.value = handleNull(props.user.street);
     bairro.value = handleNull(props.user.neighborhood);
     cidade.value = handleNull(props.user.city);
     estado.value = handleNull(props.user.state);
     numero.value = handleNull(props.user.number);
+    
+    await fetchPosts();
 });
 
 watch(cep, (value) => {
@@ -90,6 +106,7 @@ const updateProfile = async () => {
         const response = await axios.post(route('profile.update'), {
             user_id: props.user.id,
             name: nome.value,
+            username: username.value,
             email: email.value,
             biography: biografia.value,
             gender: selectedOption.value,
@@ -106,7 +123,7 @@ const updateProfile = async () => {
         if (response.status === 200) {
             user.value = response.data.user;
 
-            router.visit(route('profile', nome.value));
+            router.visit(route('profile', username.value));
         }
         
         setTimeout(() => {
@@ -116,11 +133,41 @@ const updateProfile = async () => {
         console.error('Erro ao atualizar perfil:', error);
     }
 };
+
+const fetchPosts = async () => {
+    isLoadingPosts.value = true;
+    try {
+        const response = await axios.get(route('post.getPostsByUser', user.value.username));
+        posts.value = response.data.posts;
+        nextRouteCursor.value = response.data.nextPageUrl;
+        hasMore.value = response.data.hasMorePages;
+        setTimeout(() => {
+            isLoadingPosts.value = false;
+        }, 1000);
+    } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+    }
+};
+
+const loadMore = async () => {
+    isLoadingPosts.value = true;
+    try {
+        const response = await axios.get(nextRouteCursor.value);
+        posts.value = [...posts.value, ...response.data.posts];
+        nextRouteCursor.value = response.data.nextPageUrl;
+        hasMore.value = response.data.hasMorePages;
+        setTimeout(() => {
+            isLoadingPosts.value = false;
+        }, 1000);
+    } catch (error) {
+        console.error('Erro ao carregar mais posts:', error);
+    }
+};
 </script>
 
 <template>
     <AppLayout
-        :user="user"
+        :user="userAuth"
     >
         <Head title="Meu perfil" />
 
@@ -133,11 +180,21 @@ const updateProfile = async () => {
                 />
 
                 <TextInput
+                    v-if="canEdit"
                     class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
                     v-model="nome"
                 ></TextInput>
+                <span v-else class="text-2xl font-bold mt-4">{{ props.user.name }}</span>
                 
                 <TextInput
+                    v-if="canEdit"
+                    class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
+                    v-model="username"
+                ></TextInput>
+                <span v-else class="text-xs text-gray-500 mt-2">{{ props.user.username }}</span>
+
+                <TextInput
+                    v-if="canEdit"
                     class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
                     v-model="email"
                 ></TextInput>
@@ -147,13 +204,15 @@ const updateProfile = async () => {
                         value="Biografia"
                     />
                     <Textarea
+                        v-if="canEdit"
                         id="biografia"
                         name="biografia"
                         v-model="biografia"
                     ></Textarea>
+                    <span v-else>{{ props.user.biography }}</span>
                 </div>
 
-                <section class="flex flex-col items-center justify-center">
+                <section class="flex flex-col items-center justify-center" v-if="canEdit">
                     <div class="flex justify-start">
                         <h1 class="text-primary-600 text-2xl mt-8">Informações pessoais</h1>
                     </div>
@@ -270,14 +329,38 @@ const updateProfile = async () => {
                             ></TextInput>
                         </div>
                     </div>
-                </section>
 
-                <button
-                    @click="updateProfile"
-                    class="mt-4 bg-primary-500 text-white font-bold py-2 px-4 rounded-lg"
-                >
-                    Salvar
-                </button>
+                    <button
+                        v-if="canEdit"
+                        @click="updateProfile"
+                        class="mt-4 bg-primary-500 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                        Salvar
+                    </button>
+                </section>
+                
+                <section class="flex flex-col items-center mt-6 h-64 overflow-auto">
+                    <div class="flex flex-col gap-4" v-if="posts.length > 0">
+                        <SkeletonPosts v-if="isLoading" v-for="n in 5"></SkeletonPosts>
+
+                        <Post
+                            v-else
+                            v-for="post in posts"
+                            :key="post.id"
+                            :post-id="post.id"
+                            :post-content="post"
+                            :user-name="post.user.name"
+                        />
+
+                        <button v-if="hasMore" @click="loadMore">Load More</button>
+                    </div>
+
+                    <div v-else>
+                        <div class="bg-white p-4 rounded-lg">
+                            <p class="text-lg font-medium">Parece que não encontramos nada por aqui ainda...</p>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </AppLayout>

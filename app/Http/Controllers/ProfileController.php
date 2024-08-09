@@ -18,9 +18,11 @@ class ProfileController extends Controller
     
     public function index(string $userName)
     {
+        $authUser = auth()->user();
         $user = $this->userService->getUserByName($userName);
 
         return Inertia::render('Profile', [
+            'authUser' => $authUser,
             'user' => $user,
         ]);
     }
@@ -31,9 +33,9 @@ class ProfileController extends Controller
 
         $this->userService->updateUser($user, $request->all());
 
-        return (object) [
+        return response()->json([
             'message' => 'Perfil atualizado com sucesso!',
             'user' => $user,
-        ];
+        ]);
     }
 }

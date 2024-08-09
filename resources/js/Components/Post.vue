@@ -86,27 +86,40 @@ const newReaction = async (reaction) => {
         if (response.status == 200) {
             let content = document.getElementById('post-' + props.postId);
 
+            let buttonLike = content.querySelector('.bx.bxs-like');
+            let buttonDeslike = content.querySelector('.bx.bxs-dislike');
+
             if (reaction == 'like') {
-                let button = content.querySelector('.bx.bxs-like');
                 if (userLiked.value) {
                     likes.value--;
                     userLiked.value = false;
-                    button.classList.remove('text-green');
+                    buttonLike.classList.remove('text-green');
                 } else {
                     likes.value++;
                     userLiked.value = true;
-                    button.classList.add('text-green');
+                    buttonLike.classList.add('text-green');
+
+                    if (userDisliked.value) {
+                        dislikes.value--;
+                        userDisliked.value = false;
+                        buttonDeslike.classList.remove('text-red');
+                    }
                 }
             } else if (reaction == 'dislike') {
-                let button = content.querySelector('.bx.bxs-dislike');
                 if (userDisliked.value) {
                     dislikes.value--;
                     userDisliked.value = false;
-                    button.classList.remove('text-red');
+                    buttonDeslike.classList.remove('text-red');
                 } else {
                     dislikes.value++;
                     userDisliked.value = true;
-                    button.classList.add('text-red');
+                    buttonDeslike.classList.add('text-red');
+
+                    if (likes.value) {
+                        likes.value--;
+                        userLiked.value = false;
+                        buttonLike.classList.remove('text-green');
+                    }
                 }
             }
         } else {

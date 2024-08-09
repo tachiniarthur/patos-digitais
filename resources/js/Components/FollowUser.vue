@@ -1,4 +1,7 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
+import { onMounted, ref } from 'vue';
+
 const props = defineProps({
     user: {
         type: Object,
@@ -6,13 +9,40 @@ const props = defineProps({
     }
 });
 
-const follow = () => {
-    console.log('Seguir usuário');
+const isLoading = ref(false);
+const followEnable = ref(false);
+
+const follow = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.post(route('search.follow'), {
+            follower_id: props.user.id,
+        });
+
+        if (response.status == 200) {
+            if (response.data.type == 'follow') {
+                followEnable.value = false;
+            } else {
+                followEnable.value = true;
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao reagir na publicação:', error);
+    }
 }
+
+onMounted(() => {
+    if (!props.user.is_followed) {
+        followEnable.value = true;
+    }
+});
 </script>
 
 <template>
-    <div class="flex flex-col gap-3 px-4">
+    <Link 
+        :href="route('profile', props.user.username)"
+        class="flex flex-col gap-3 px-6 hover:scale-105 duration-500"
+    >
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-center">
                 <img
@@ -20,13 +50,14 @@ const follow = () => {
                     :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
                     alt="Imagem de perfil do usuário"
                 >
-                <span class="text-sm">{{ props.user.name }}</span>
+                <span class="text-sm">{{ props.user.username }}</span>
             </div>
-            <div class="flex">
-                <button class="hover:text-blue hover:scale-150 duration-500 transform active:scale-[2] transition-transform ease-in-out" @click="follow()">
+            <div class="flex" v-if="followEnable">
+                <button class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1" @click.prevent="follow()">
                     <i class='bx bx-user-plus font-bold text-xl'></i>
+                    <span class="text-sm">Seguir</span>
                 </button>
             </div>
         </div>
-    </div>
+    </Link>
 </template>
