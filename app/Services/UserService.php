@@ -22,29 +22,45 @@ class UserService
         $user = $this->user
             ->where('username', $name)
             ->select(
-                'id',
-                'name',
-                'username',
-                'email',
-                'biography',
-                'gender',
-                'date_of_birth',
-                'phone_number',
-                'zip_code',
-                'number',
-                'street',
-                'neighborhood',
-                'city',
-                'state',
+                'users.id',
+                'users.name',
+                'users.username',
+                'users.email',
+                'users.biography',
+                'users.gender',
+                'users.date_of_birth',
+                'users.phone_number',
+                'users.zip_code',
+                'users.number',
+                'users.street',
+                'users.neighborhood',
+                'users.city',
+                'users.state',
             )
-            ->withCount('posts', 'followers', 'followings')
-            ->with('followers')
+            ->withCount([
+                'posts as posts_count' => function ($query) {
+                    $query->whereNull('posts.deleted_at');
+                },
+                'followers as followers_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                },
+                'followings as followings_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                }
+            ])
+            ->with(['followers' => function ($query) {
+                $query->whereNull('followers.deleted_at');
+            }])
             ->first();
 
         if ($user) {
-            $user->is_following = $user->followers->contains(auth()->id());
+            $activeFollowers = $user->followers->filter(function ($follower) {
+                return is_null($follower->deleted_at);
+            });
+
+            $user->is_following = $activeFollowers->contains(auth()->id());
         }
-    
+
         return $user;
     }
 

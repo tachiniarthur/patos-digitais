@@ -45,6 +45,8 @@ const numero = ref('');
 const estado = ref('');
 
 const isFollowing = ref(false);
+const textFollow = ref('Seguir');
+const iconFollow = ref('bx-user-plus');
 const countFollowers = ref(0);
 const countFollowing = ref(0);
 const countPosts = ref(0);
@@ -85,6 +87,11 @@ onMounted(async () => {
     countFollowing.value = handleNull(props.user.followings_count);
     countPosts.value = handleNull(props.user.posts_count);
 
+    console.log(isFollowing.value);
+    if (isFollowing.value) {
+        textFollow.value = 'Deixar de seguir';
+        iconFollow.value = 'bx-user-minus';
+    }
     await fetchPosts();
 });
 
@@ -174,6 +181,27 @@ const loadMore = async () => {
         console.error('Erro ao carregar mais posts:', error);
     }
 };
+
+const follow = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.post(route('search.follow'), {
+            follower_id: props.user.id,
+        });
+
+        if (response.status == 200) {
+            if (response.data.type == 'follow') {
+                textFollow.value = 'Deixar de seguir';
+                iconFollow.value = 'bx-user-minus';
+            } else {
+                textFollow.value = 'Seguir';
+                iconFollow.value = 'bx-user-plus';
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao reagir na publicação:', error);
+    }
+}
 </script>
 
 <template>
@@ -220,10 +248,6 @@ const loadMore = async () => {
                             <span class="text-xs text-gray-500 mt-2">
                                 {{ props.user.username }}
                             </span>
-                            <button class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1" @click.prevent="follow()">
-                                <i class='bx bx-user-plus font-bold text-xl'></i>
-                                <span class="text-sm">Seguir</span>
-                            </button>
                         </div>
                     </div>
                     <div class="flex gap-8">
@@ -251,6 +275,13 @@ const loadMore = async () => {
                                 Posts
                             </span>
                         </div>
+                        <button
+                            class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1"
+                            @click.prevent="follow()"
+                        >
+                            <i :class="['bx', iconFollow, 'font-bold', 'text-xl']"></i>
+                            <span class="text-sm">{{ textFollow }}</span>
+                        </button>
                     </div>
                 </div>
 
