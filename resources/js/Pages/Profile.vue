@@ -43,6 +43,12 @@ const logradouro = ref('');
 const bairro = ref('');
 const numero = ref('');
 const estado = ref('');
+
+const isFollowing = ref(false);
+const countFollowers = ref(0);
+const countFollowing = ref(0);
+const countPosts = ref(0);
+
 const posts = ref([]);
 const nextRouteCursor = ref(null);
 const hasMore = ref(false);
@@ -74,6 +80,11 @@ onMounted(async () => {
     estado.value = handleNull(props.user.state);
     numero.value = handleNull(props.user.number);
     
+    isFollowing.value = props.user.is_following;
+    countFollowers.value = handleNull(props.user.followers_count);
+    countFollowing.value = handleNull(props.user.followings_count);
+    countPosts.value = handleNull(props.user.posts_count);
+
     await fetchPosts();
 });
 
@@ -172,32 +183,76 @@ const loadMore = async () => {
         <Head title="Meu perfil" />
 
         <div class="flex flex-col items-center bg-secondary-50 rounded-lg w-full py-6 mx-8">
-            <div class="flex flex-col items-center">
-                <img
-                    :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
-                    alt="Avatar"
-                    class="w-32 h-32 rounded-lg"
-                />
-
-                <TextInput
-                    v-if="canEdit"
-                    class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
-                    v-model="nome"
-                ></TextInput>
-                <span v-else class="text-2xl font-bold mt-4">{{ props.user.name }}</span>
-                
-                <TextInput
-                    v-if="canEdit"
-                    class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
-                    v-model="username"
-                ></TextInput>
-                <span v-else class="text-xs text-gray-500 mt-2">{{ props.user.username }}</span>
-
-                <TextInput
-                    v-if="canEdit"
-                    class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
-                    v-model="email"
-                ></TextInput>
+            <div class="flex flex-col items-center justify-center">
+                <div class="flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <div class="flex flex-col items-center" v-if="canEdit">
+                            <img
+                                :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
+                                alt="Avatar"
+                                class="w-32 h-32 rounded-lg"
+                            />
+                            
+                            <TextInput
+                                class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
+                                v-model="nome"
+                            ></TextInput>
+                            
+                            <TextInput
+                                class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
+                                v-model="username"
+                            ></TextInput>
+                            
+                            <TextInput
+                                class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
+                                v-model="email"
+                            ></TextInput>
+                        </div>
+                        <div class="flex flex-col items-center w-[19rem]" v-else>
+                            <img
+                                :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
+                                alt="Avatar"
+                                class="w-32 h-32 rounded-lg"
+                            />
+                            <span class="text-2xl font-bold mt-4">
+                                {{ props.user.name }}
+                            </span>
+                            <span class="text-xs text-gray-500 mt-2">
+                                {{ props.user.username }}
+                            </span>
+                            <button class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1" @click.prevent="follow()">
+                                <i class='bx bx-user-plus font-bold text-xl'></i>
+                                <span class="text-sm">Seguir</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex gap-8">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countFollowers }}
+                            </span>
+                            <span>
+                                Seguidores
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countFollowing }}
+                            </span>
+                            <span>
+                                Seguindo
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countPosts }}
+                            </span>
+                            <span>
+                                Posts
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="flex flex-col mt-4 w-[24rem]">
                     <InputLabel
@@ -350,6 +405,7 @@ const loadMore = async () => {
                             :post-id="post.id"
                             :post-content="post"
                             :user-name="post.user.name"
+                            :disabled-reactions="true"
                         />
 
                         <button v-if="hasMore" @click="loadMore">Load More</button>
@@ -357,7 +413,7 @@ const loadMore = async () => {
 
                     <div v-else>
                         <div class="bg-white p-4 rounded-lg">
-                            <p class="text-lg font-medium">Parece que não encontramos nada por aqui ainda...</p>
+                            <p class="text-lg font-medium">Parece que não encontramos nenhum post por aqui ainda...</p>
                         </div>
                     </div>
                 </section>

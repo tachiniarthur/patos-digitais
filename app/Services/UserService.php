@@ -19,7 +19,7 @@ class UserService
 
     public function getUserByName(string $name)
     {
-        return $this->user
+        $user = $this->user
             ->where('username', $name)
             ->select(
                 'id',
@@ -36,7 +36,16 @@ class UserService
                 'neighborhood',
                 'city',
                 'state',
-            )->first();
+            )
+            ->withCount('posts', 'followers', 'followings')
+            ->with('followers')
+            ->first();
+
+        if ($user) {
+            $user->is_following = $user->followers->contains(auth()->id());
+        }
+    
+        return $user;
     }
 
     public function createUser($request)
