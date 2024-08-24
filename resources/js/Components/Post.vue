@@ -33,6 +33,11 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    disabledReactions: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 });
 
 const fetchComments = async () => {
@@ -86,27 +91,40 @@ const newReaction = async (reaction) => {
         if (response.status == 200) {
             let content = document.getElementById('post-' + props.postId);
 
+            let buttonLike = content.querySelector('.bx.bxs-like');
+            let buttonDeslike = content.querySelector('.bx.bxs-dislike');
+
             if (reaction == 'like') {
-                let button = content.querySelector('.bx.bxs-like');
                 if (userLiked.value) {
                     likes.value--;
                     userLiked.value = false;
-                    button.classList.remove('text-green');
+                    buttonLike.classList.remove('text-green');
                 } else {
                     likes.value++;
                     userLiked.value = true;
-                    button.classList.add('text-green');
+                    buttonLike.classList.add('text-green');
+
+                    if (userDisliked.value) {
+                        dislikes.value--;
+                        userDisliked.value = false;
+                        buttonDeslike.classList.remove('text-red');
+                    }
                 }
             } else if (reaction == 'dislike') {
-                let button = content.querySelector('.bx.bxs-dislike');
                 if (userDisliked.value) {
                     dislikes.value--;
                     userDisliked.value = false;
-                    button.classList.remove('text-red');
+                    buttonDeslike.classList.remove('text-red');
                 } else {
                     dislikes.value++;
                     userDisliked.value = true;
-                    button.classList.add('text-red');
+                    buttonDeslike.classList.add('text-red');
+
+                    if (likes.value) {
+                        likes.value--;
+                        userLiked.value = false;
+                        buttonLike.classList.remove('text-green');
+                    }
                 }
             }
         } else {
@@ -130,21 +148,24 @@ const toggleTextInput = () => {
 
 onMounted(() => {
     content.value = props.postContent.content;
-    likes.value = props.postContent.likes_count;
-    userLiked.value = props.postContent.user_liked;
-    dislikes.value = props.postContent.dislikes_count;
-    userDisliked.value = props.postContent.user_disliked;
-    comments.value = props.postContent.comments_count;
 
-    let contentPost = document.getElementById('post-' + props.postId);
-    if (userLiked.value) {
-        let button = contentPost.querySelector('.bx.bxs-like');
-        button.classList.add('text-green');
-    }
-
-    if (userDisliked.value) {
-        let button = contentPost.querySelector('.bx.bxs-dislike');
-        button.classList.add('text-red');
+    if (!props.disabledReactions) {
+        likes.value = props.postContent.likes_count;
+        userLiked.value = props.postContent.user_liked;
+        dislikes.value = props.postContent.dislikes_count;
+        userDisliked.value = props.postContent.user_disliked;
+        comments.value = props.postContent.comments_count;
+    
+        let contentPost = document.getElementById('post-' + props.postId);
+        if (userLiked.value) {
+            let button = contentPost.querySelector('.bx.bxs-like');
+            button.classList.add('text-green');
+        }
+    
+        if (userDisliked.value) {
+            let button = contentPost.querySelector('.bx.bxs-dislike');
+            button.classList.add('text-red');
+        }
     }
 });
 </script>
@@ -162,7 +183,7 @@ onMounted(() => {
         <span class="text-break">
             {{ content }}
         </span>
-        <div :id="'post-' + props.postId" class="flex items-center justify-between w-20 gap-4">
+        <div :id="'post-' + props.postId" class="flex items-center justify-between w-20 gap-4" v-if="!props.disabledReactions">
             <button class="flex justify-center items-center hover:text-green hover:scale-150 duration-500 transform active:scale-[2] transition-transform ease-in-out" @click="newReaction('like')">
                 <i class="bx bxs-like font-medium"></i>
                 <span class="text-xs font-medium ps-1">{{ likes }}</span>

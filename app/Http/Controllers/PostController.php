@@ -6,11 +6,13 @@ use App\Http\Requests\PostCommentStoreRequest;
 use App\Http\Requests\PostReactionStoreRequest;
 use App\Http\Requests\PostStoreRequest;
 use App\Services\PostService;
+use App\Services\UserService;
 
 class PostController extends Controller
 {
     public function __construct(
-        public PostService $postService
+        public PostService $postService,
+        public UserService $userService,
     ) {
         
     }
@@ -25,11 +27,36 @@ class PostController extends Controller
             $cursor = explode('?cursor=', $query->nextPageUrl())[1];
         }
 
-        return (object) [
+        return response()->json([
             'posts'         => $posts,
             'nextPageUrl'   => route('post.getPosts', $cursor),
             'hasMorePages'  => $query->hasMorePages(),
-        ];
+        ]);
+    }
+
+    public function getPostsByUser(string $userName, $cursor = null)
+    {	
+        $user = $this->userService->getUserByName($userName);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuário não encontrado!',
+            ], 404);
+        }
+
+        $query = $this->postService->getPostsByUser($user->id, $cursor);
+        $posts = $query->items();
+
+        $cursor = 0;
+        if ($query->hasMorePages()) {
+            $cursor = explode('?cursor=', $query->nextPageUrl())[1];
+        }
+
+        return response()->json([
+            'posts'         => $posts,
+            'nextPageUrl'   => route('post.getPostsByUser', [$userName, $cursor]),
+            'hasMorePages'  => $query->hasMorePages(),
+        ]);
     }
     
     public function store(PostStoreRequest $request)
@@ -43,9 +70,9 @@ class PostController extends Controller
     {
         $comments = $this->postService->getComments($postId);
 
-        return (object) [
+        return response()->json([
             'comments' => $comments,
-        ];
+        ]);
     }
 
     public function comment(PostCommentStoreRequest $request): void

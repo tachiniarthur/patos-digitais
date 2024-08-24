@@ -6,8 +6,14 @@ import Textarea from '@/Components/Textarea.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Select from '@/Components/Select.vue';
+import SkeletonPosts from '@/Components/SkeletonPosts.vue';
+import Post from '@/Components/Post.vue';
 
 const props = defineProps({
+    authUser: {
+        type: Object,
+        required: true,
+    },
     user: {
         type: Object,
         required: true,
@@ -15,8 +21,12 @@ const props = defineProps({
 });
 
 const user = ref(props.user);
+const userAuth = ref(props.authUser);
+const canEdit = userAuth.value.id == user.value.id;
 const isLoading = ref(false);
+const isLoadingPosts = ref(false);
 const nome = ref('');
+const username = ref('');
 const email = ref('');
 const biografia = ref('');
 const selectedOption = ref('');
@@ -34,6 +44,17 @@ const bairro = ref('');
 const numero = ref('');
 const estado = ref('');
 
+const isFollowing = ref(false);
+const textFollow = ref('Seguir');
+const iconFollow = ref('bx-user-plus');
+const countFollowers = ref(0);
+const countFollowing = ref(0);
+const countPosts = ref(0);
+
+const posts = ref([]);
+const nextRouteCursor = ref(null);
+const hasMore = ref(false);
+
 const formatCep = (value) => {
     value = value.replace(/\D/g, '');
     if (value.length > 5) {
@@ -46,19 +67,31 @@ const handleNull = (value) => {
     return value == null ? '' : value;
 };
 
-onMounted(() => {
+onMounted(async () => {
     nome.value = handleNull(props.user.name);
+    username.value = handleNull(props.user.username);
     email.value = handleNull(props.user.email);
     biografia.value = handleNull(props.user.biography);
     selectedOption.value = handleNull(props.user.gender);
     dataNascimento.value = handleNull(props.user.birth_date);
-    telefone.value = handleNull(props.user.phone);
+    telefone.value = handleNull(props.user.phone_number);
     cep.value = handleNull(props.user.zip_code);
     logradouro.value = handleNull(props.user.street);
     bairro.value = handleNull(props.user.neighborhood);
     cidade.value = handleNull(props.user.city);
     estado.value = handleNull(props.user.state);
     numero.value = handleNull(props.user.number);
+    
+    isFollowing.value = props.user.is_following;
+    countFollowers.value = handleNull(props.user.followers_count);
+    countFollowing.value = handleNull(props.user.followings_count);
+    countPosts.value = handleNull(props.user.posts_count);
+
+    if (isFollowing.value) {
+        textFollow.value = 'Deixar de seguir';
+        iconFollow.value = 'bx-user-minus';
+    }
+    await fetchPosts();
 });
 
 watch(cep, (value) => {
@@ -90,6 +123,7 @@ const updateProfile = async () => {
         const response = await axios.post(route('profile.update'), {
             user_id: props.user.id,
             name: nome.value,
+            username: username.value,
             email: email.value,
             biography: biografia.value,
             gender: selectedOption.value,
@@ -106,7 +140,7 @@ const updateProfile = async () => {
         if (response.status === 200) {
             user.value = response.data.user;
 
-            router.visit(route('profile', nome.value));
+            router.visit(route('profile', username.value));
         }
         
         setTimeout(() => {
@@ -116,44 +150,174 @@ const updateProfile = async () => {
         console.error('Erro ao atualizar perfil:', error);
     }
 };
+
+const fetchPosts = async () => {
+    isLoadingPosts.value = true;
+    try {
+        const response = await axios.get(route('post.getPostsByUser', user.value.username));
+        posts.value = response.data.posts;
+        nextRouteCursor.value = response.data.nextPageUrl;
+        hasMore.value = response.data.hasMorePages;
+        setTimeout(() => {
+            isLoadingPosts.value = false;
+        }, 1000);
+    } catch (error) {
+        console.error('Erro ao carregar posts:', error);
+    }
+};
+
+const loadMore = async () => {
+    isLoadingPosts.value = true;
+    try {
+        const response = await axios.get(nextRouteCursor.value);
+        posts.value = [...posts.value, ...response.data.posts];
+        nextRouteCursor.value = response.data.nextPageUrl;
+        hasMore.value = response.data.hasMorePages;
+        setTimeout(() => {
+            isLoadingPosts.value = false;
+        }, 1000);
+    } catch (error) {
+        console.error('Erro ao carregar mais posts:', error);
+    }
+};
+
+const follow = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.post(route('search.follow'), {
+            follower_id: props.user.id,
+        });
+
+        if (response.status == 200) {
+            if (response.data.type == 'follow') {
+                textFollow.value = 'Deixar de seguir';
+                iconFollow.value = 'bx-user-minus';
+            } else {
+                textFollow.value = 'Seguir';
+                iconFollow.value = 'bx-user-plus';
+            }
+
+            userCountFollowers();
+        }
+    } catch (error) {
+        console.error('Erro ao reagir na publicação:', error);
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+const userCountFollowers = async () => {
+    try {
+        const response = await axios.get(route('profile.getCountFollowersUser'), {
+            params: {
+                user_id: user.value.id,
+            }
+        });
+
+        countFollowers.value = response.data.userCountFollowers.followers_count;
+        countFollowing.value = response.data.userCountFollowers.followings_count;
+    } catch (error) {
+        console.error('Erro ao contar seguidores:', error);
+    }
+}
 </script>
 
 <template>
     <AppLayout
-        :user="user"
+        :user="userAuth"
     >
         <Head title="Meu perfil" />
 
         <div class="flex flex-col items-center bg-secondary-50 rounded-lg w-full py-6 mx-8">
-            <div class="flex flex-col items-center">
-                <img
-                    :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
-                    alt="Avatar"
-                    class="w-32 h-32 rounded-lg"
-                />
-
-                <TextInput
-                    class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
-                    v-model="nome"
-                ></TextInput>
-                
-                <TextInput
-                    class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
-                    v-model="email"
-                ></TextInput>
+            <div class="flex flex-col items-center justify-center">
+                <div class="flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <div class="flex flex-col items-center" v-if="canEdit">
+                            <img
+                                :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
+                                alt="Avatar"
+                                class="w-32 h-32 rounded-lg"
+                            />
+                            
+                            <TextInput
+                                class="border-none bg-transparent text-2xl font-bold mt-4 align-middle text-center py-0"
+                                v-model="nome"
+                            ></TextInput>
+                            
+                            <TextInput
+                                class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
+                                v-model="username"
+                            ></TextInput>
+                            
+                            <TextInput
+                                class="text-xs border-none bg-transparent mt-2 align-middle text-center py-0"
+                                v-model="email"
+                            ></TextInput>
+                        </div>
+                        <div class="flex flex-col items-center w-[19rem]" v-else>
+                            <img
+                                :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.user.name"
+                                alt="Avatar"
+                                class="w-32 h-32 rounded-lg"
+                            />
+                            <span class="text-2xl font-bold mt-4">
+                                {{ props.user.name }}
+                            </span>
+                            <span class="text-xs text-gray-500 mt-2">
+                                {{ props.user.username }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex gap-8">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countFollowers }}
+                            </span>
+                            <span>
+                                Seguidores
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countFollowing }}
+                            </span>
+                            <span>
+                                Seguindo
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-3xl font-bold">
+                                {{ countPosts }}
+                            </span>
+                            <span>
+                                Posts
+                            </span>
+                        </div>
+                        <button
+                            v-if="userAuth.id != user.id"
+                            class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1"
+                            @click.prevent="follow()"
+                        >
+                            <i :class="['bx', iconFollow, 'font-bold', 'text-xl']"></i>
+                            <span class="text-sm">{{ textFollow }}</span>
+                        </button>
+                    </div>
+                </div>
 
                 <div class="flex flex-col mt-4 w-[24rem]">
                     <InputLabel
                         value="Biografia"
                     />
                     <Textarea
+                        v-if="canEdit"
                         id="biografia"
                         name="biografia"
                         v-model="biografia"
                     ></Textarea>
+                    <span v-else>{{ props.user.biography }}</span>
                 </div>
 
-                <section class="flex flex-col items-center justify-center">
+                <section class="flex flex-col items-center justify-center" v-if="canEdit">
                     <div class="flex justify-start">
                         <h1 class="text-primary-600 text-2xl mt-8">Informações pessoais</h1>
                     </div>
@@ -270,14 +434,39 @@ const updateProfile = async () => {
                             ></TextInput>
                         </div>
                     </div>
-                </section>
 
-                <button
-                    @click="updateProfile"
-                    class="mt-4 bg-primary-500 text-white font-bold py-2 px-4 rounded-lg"
-                >
-                    Salvar
-                </button>
+                    <button
+                        v-if="canEdit"
+                        @click="updateProfile"
+                        class="mt-4 bg-primary-500 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                        Salvar
+                    </button>
+                </section>
+                
+                <section class="flex flex-col items-center mt-6 h-64 overflow-auto">
+                    <div class="flex flex-col gap-4" v-if="posts.length > 0">
+                        <SkeletonPosts v-if="isLoading" v-for="n in 5"></SkeletonPosts>
+
+                        <Post
+                            v-else
+                            v-for="post in posts"
+                            :key="post.id"
+                            :post-id="post.id"
+                            :post-content="post"
+                            :user-name="post.user.name"
+                            :disabled-reactions="true"
+                        />
+
+                        <button v-if="hasMore" @click="loadMore">Load More</button>
+                    </div>
+
+                    <div v-else>
+                        <div class="bg-white p-4 rounded-lg">
+                            <p class="text-lg font-medium">Parece que não encontramos nenhum post por aqui ainda...</p>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </AppLayout>

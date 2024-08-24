@@ -13,6 +13,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'biography',
@@ -58,5 +59,15 @@ class User extends Authenticatable
     public function dislikes()
     {
         return $this->hasMany(Reaction::class)->where('type', 'dislike');
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id');
+    }
+
+    public function followings()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
     }
 }

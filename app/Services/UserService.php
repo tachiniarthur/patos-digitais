@@ -7,7 +7,7 @@ use App\Models\User;
 class UserService
 {
     public function __construct(
-        public User $user
+        private User $user
     ) {
         
     }
@@ -19,28 +19,55 @@ class UserService
 
     public function getUserByName(string $name)
     {
-        return $this->user
-            ->where('name', $name)
+        $user = $this->user
+            ->where('username', $name)
             ->select(
-                'id',
-                'name',
-                'email',
-                'biography',
-                'gender',
-                'date_of_birth',
-                'phone_number',
-                'zip_code',
-                'number',
-                'street',
-                'neighborhood',
-                'city',
-                'state',
-            )->first();
+                'users.id',
+                'users.name',
+                'users.username',
+                'users.email',
+                'users.biography',
+                'users.gender',
+                'users.date_of_birth',
+                'users.phone_number',
+                'users.zip_code',
+                'users.number',
+                'users.street',
+                'users.neighborhood',
+                'users.city',
+                'users.state',
+            )
+            ->withCount([
+                'posts as posts_count' => function ($query) {
+                    $query->whereNull('posts.deleted_at');
+                },
+                'followers as followers_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                },
+                'followings as followings_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                }
+            ])
+            ->with(['followers' => function ($query) {
+                $query->whereNull('followers.deleted_at');
+            }])
+            ->first();
+
+        if ($user) {
+            $activeFollowers = $user->followers->filter(function ($follower) {
+                return is_null($follower->deleted_at);
+            });
+
+            $user->is_following = $activeFollowers->contains(auth()->id());
+        }
+
+        return $user;
     }
 
     public function createUser($request)
     {
         return $this->user->create([
+            'username' => $request['username'],
             'name' => $request['name'],
             'email' => $request['email'],
             'password' => bcrypt($request['password']),
@@ -50,6 +77,7 @@ class UserService
     public function updateUser($user, $request)
     {
         $user->update([
+            'username' => $request['username'],
             'name' => $request['name'],
             'email' => $request['email'],
             'biography' => $request['biography'],
@@ -67,15 +95,28 @@ class UserService
         return $user;
     }
 
-    public function findUserBySearch($request)
+    public function getCountFollowersIdUser(int $idUser)
     {
-        return $this->user
-            ->where('name', 'like', '%' . $request['search'] . '%')
-            ->where('id', '!=', auth()->id())
-            ->select(
-                'id',
-                'name',
-                'email',
-            )->get();
+        $user = $this->user
+            ->where('id', $idUser)
+            ->withCount([
+                'followers as followers_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                },
+                'followings as followings_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                }
+            ])
+            ->first();
+
+        if ($user) {
+            $activeFollowers = $user->followers->filter(function ($follower) {
+                return is_null($follower->deleted_at);
+            });
+
+            $user->is_following = $activeFollowers->contains(auth()->id());
+        }
+
+        return $user;
     }
 }

@@ -23,7 +23,7 @@ const props = defineProps({
             <div class="flex items-center justify-center">
                 <img
                     class="object-cover w-10 h-10 me-2 rounded-full"
-                    src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
+                    :src="'https://ui-avatars.com/api/?background=ffd833&color=2c2f33&name='+props.userName"
                     alt="Imagem de perfil do usuário"
                 >
                 <span class="text-sm">{{ props.userName }}</span>
