@@ -87,7 +87,6 @@ onMounted(async () => {
     countFollowing.value = handleNull(props.user.followings_count);
     countPosts.value = handleNull(props.user.posts_count);
 
-    console.log(isFollowing.value);
     if (isFollowing.value) {
         textFollow.value = 'Deixar de seguir';
         iconFollow.value = 'bx-user-minus';
@@ -197,9 +196,28 @@ const follow = async () => {
                 textFollow.value = 'Seguir';
                 iconFollow.value = 'bx-user-plus';
             }
+
+            userCountFollowers();
         }
     } catch (error) {
         console.error('Erro ao reagir na publicação:', error);
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+const userCountFollowers = async () => {
+    try {
+        const response = await axios.get(route('profile.getCountFollowersUser'), {
+            params: {
+                user_id: user.value.id,
+            }
+        });
+
+        countFollowers.value = response.data.userCountFollowers.followers_count;
+        countFollowing.value = response.data.userCountFollowers.followings_count;
+    } catch (error) {
+        console.error('Erro ao contar seguidores:', error);
     }
 }
 </script>
@@ -276,6 +294,7 @@ const follow = async () => {
                             </span>
                         </div>
                         <button
+                            v-if="userAuth.id != user.id"
                             class="hover:text-blue hover:scale-125 duration-500 transform active:scale-[2] transition-transform ease-in-out flex items-center gap-1"
                             @click.prevent="follow()"
                         >

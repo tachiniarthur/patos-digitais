@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserProfileUpdateRequest;
 use App\Services\PostService;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
@@ -36,6 +37,15 @@ class ProfileController extends Controller
         return response()->json([
             'message' => 'Perfil atualizado com sucesso!',
             'user' => $user,
+        ]);
+    }
+
+    public function getCountFollowersUser(Request $request)
+    {
+        $userCountFollowers = $this->userService->getCountFollowersIdUser($request->user_id);
+
+        return response()->json([
+            'userCountFollowers' => $userCountFollowers,
         ]);
     }
 }

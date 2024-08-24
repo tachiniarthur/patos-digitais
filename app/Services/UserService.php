@@ -94,4 +94,29 @@ class UserService
 
         return $user;
     }
+
+    public function getCountFollowersIdUser(int $idUser)
+    {
+        $user = $this->user
+            ->where('id', $idUser)
+            ->withCount([
+                'followers as followers_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                },
+                'followings as followings_count' => function ($query) {
+                    $query->whereNull('followers.deleted_at');
+                }
+            ])
+            ->first();
+
+        if ($user) {
+            $activeFollowers = $user->followers->filter(function ($follower) {
+                return is_null($follower->deleted_at);
+            });
+
+            $user->is_following = $activeFollowers->contains(auth()->id());
+        }
+
+        return $user;
+    }
 }

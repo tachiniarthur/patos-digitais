@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/{userName}/meu-perfil', [ProfileController::class, 'index'])->name('profile');
     Route::post('/atualizar-perfil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/contar-seguidores', [ProfileController::class, 'getCountFollowersUser'])->name('profile.getCountFollowersUser');
     
     Route::prefix('/post')->group(function () {
         Route::get('/consultar/{cursor?}', [PostController::class, 'getPosts'])->name('post.getPosts');

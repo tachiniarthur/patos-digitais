@@ -82,13 +82,6 @@ const emit = defineEmits(['postCreated']);
                     <i class="bx bx-search font-medium"></i>
                     <span class="mx-2 font-medium">Pesquisar</span>
                 </Link>
-                <Link
-                    href="#"
-                    class="flex items-center px-4 py-2 mt-3 text-primary-600 rounded-lg hover:bg-primary-200 hover:-translate-y-1 hover:scale-110 duration-300"
-                >
-                    <i class="bx bx-chat font-medium"></i>
-                    <span class="mx-2 font-medium">Conversas</span>
-                </Link>
                 <button
                     class="w-full flex items-center px-4 py-2 mt-3 text-primary-600 rounded-lg hover:bg-primary-200 hover:-translate-y-1 hover:scale-110 duration-300"
                     @click="openModal"
@@ -99,13 +92,6 @@ const emit = defineEmits(['postCreated']);
             </nav>
 
             <nav class="mt-auto">
-                <Link
-                    href="#"
-                    class="flex items-center px-4 py-2 text-primary-600 rounded-lg hover:bg-primary-200 hover:-translate-y-1 hover:scale-110 duration-300"
-                >
-                    <i class="bx bx-cog font-medium"></i>
-                    <span class="mx-2 font-medium">Configurações</span>
-                </Link>
                 <Link
                     :href="route('logout')"
                     class="flex items-center px-4 py-2 mt-3 text-primary-600 rounded-lg hover:bg-primary-200 hover:-translate-y-1 hover:scale-110 duration-300"
